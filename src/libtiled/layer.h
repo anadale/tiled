@@ -43,6 +43,7 @@ namespace Tiled {
 class Map;
 class ObjectGroup;
 class TileLayer;
+class ImageLayer;
 class Tileset;
 
 /**
@@ -190,6 +191,7 @@ public:
     // given subclass without relying on a dynamic_cast.
     virtual TileLayer *asTileLayer() { return 0; }
     virtual ObjectGroup *asObjectGroup() { return 0; }
+    virtual ImageLayer *asImageLayer() { return 0; }
 
 protected:
     Layer *initializeClone(Layer *clone) const;

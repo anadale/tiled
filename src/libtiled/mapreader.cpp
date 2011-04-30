@@ -37,6 +37,7 @@
 #include "tile.h"
 #include "tilelayer.h"
 #include "tileset.h"
+#include "imagelayer.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -102,6 +103,9 @@ private:
 
     ObjectGroup *readObjectGroup();
     MapObject *readObject();
+
+    ImageLayer *readImageLayer();
+    void readImageLayerImage(ImageLayer *imageLayer);
 
     Properties readProperties();
     void readProperty(Properties *properties);
@@ -233,6 +237,8 @@ Map *MapReaderPrivate::readMap()
             mMap->addLayer(readLayer());
         else if (xml.name() == "objectgroup")
             mMap->addLayer(readObjectGroup());
+        else if (xml.name() == "imagelayer")
+            mMap->addLayer(readImageLayer());
         else
             readUnknownElement();
     }
@@ -283,7 +289,7 @@ Tileset *MapReaderPrivate::readTileset()
             while (xml.readNextStartElement()) {
                 if (xml.name() == "tile")
                     readTilesetTile(tileset);
-                else if (xml.name() == "image")
+				else if (xml.name() == "image")
                     readTilesetImage(tileset);
                 else
                     readUnknownElement();
@@ -654,6 +660,55 @@ MapObject *MapReaderPrivate::readObject()
     }
 
     return object;
+}
+
+ImageLayer *MapReaderPrivate::readImageLayer()
+{
+    Q_ASSERT(xml.isStartElement() && xml.name() == "imagelayer");
+
+    const QXmlStreamAttributes atts = xml.attributes();
+    const QString name = atts.value(QLatin1String("name")).toString();
+    const int x = atts.value(QLatin1String("x")).toString().toInt();
+    const int y = atts.value(QLatin1String("y")).toString().toInt();
+    const int width = atts.value(QLatin1String("width")).toString().toInt();
+    const int height = atts.value(QLatin1String("height")).toString().toInt();
+
+    ImageLayer *imageLayer = new ImageLayer(name, x, y, width, height);
+    readLayerAttributes(imageLayer, atts);
+
+    while (xml.readNextStartElement()) {
+        if (xml.name() == "image")
+            readImageLayerImage(imageLayer);
+        else if (xml.name() == "properties")
+            imageLayer->mergeProperties(readProperties());
+        else
+            readUnknownElement();
+    }
+
+    return imageLayer;
+}
+
+void MapReaderPrivate::readImageLayerImage(ImageLayer *imageLayer)
+{
+    Q_ASSERT(xml.isStartElement() && xml.name() == "image");
+
+    const QXmlStreamAttributes atts = xml.attributes();
+    QString source = atts.value(QLatin1String("source")).toString();
+    QString trans = atts.value(QLatin1String("trans")).toString();
+
+    if (!trans.isEmpty()) {
+        if (!trans.startsWith(QLatin1Char('#')))
+            trans.prepend(QLatin1Char('#'));
+        imageLayer->setTransparentColor(QColor(trans));
+    }
+
+    source = p->resolveReference(source, mPath);
+
+    const QImage imageLayerImage = p->readExternalImage(source);
+    if (!imageLayer->loadFromImage(imageLayerImage, source))
+        xml.raiseError(tr("Error loading image layer image:\n'%1'").arg(source));
+
+    xml.skipCurrentElement();
 }
 
 Properties MapReaderPrivate::readProperties()

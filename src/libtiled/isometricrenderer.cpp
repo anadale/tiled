@@ -32,6 +32,7 @@
 #include "mapobject.h"
 #include "tile.h"
 #include "tilelayer.h"
+#include "imagelayer.h"
 
 #include <cmath>
 
@@ -282,6 +283,16 @@ void IsometricRenderer::drawMapObject(QPainter *painter,
     }
 
     painter->restore();
+}
+
+void IsometricRenderer::drawImageLayer(QPainter *painter, const ImageLayer *imageLayer, const QRectF &/*exposed*/) const
+{
+    const QPixmap &img = imageLayer->image();
+    QPointF paintOrigin(-img.width() / 2, -img.height());
+
+    paintOrigin += tileToPixelCoords(imageLayer->x(), imageLayer->y());
+
+    painter->drawPixmap(paintOrigin, img);
 }
 
 QPointF IsometricRenderer::pixelToTileCoords(qreal x, qreal y) const

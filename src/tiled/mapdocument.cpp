@@ -32,6 +32,7 @@
 #include "mapobject.h"
 #include "movelayer.h"
 #include "objectgroup.h"
+#include "imagelayer.h"
 #include "offsetlayer.h"
 #include "orthogonalrenderer.h"
 #include "painttilelayer.h"
@@ -224,6 +225,10 @@ void MapDocument::addLayer(LayerType layerType)
         name = tr("Object Layer %1").arg(mMap->objectGroupCount() + 1);
         layer = new ObjectGroup(name, 0, 0, mMap->width(), mMap->height());
         break;
+	case ImageLayerType:
+		name = tr("Image Layer %1").arg(mMap->imageLayerCount() + 1);
+		layer = new ImageLayer(name, 0, 0, mMap->width(), mMap->height());
+		break;
     }
     Q_ASSERT(layer);
 

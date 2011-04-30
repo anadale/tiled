@@ -28,6 +28,9 @@
 #include "objectgroup.h"
 #include "objectgrouppropertiesdialog.h"
 
+#include "imagelayer.h"
+#include "imagelayerpropertiesdialog.h"
+
 #include "mapdocument.h"
 
 #include <QShortcut>
@@ -96,12 +99,15 @@ void PropertiesDialog::showDialogFor(Layer *layer,
                                      QWidget *parent)
 {
     ObjectGroup *objectGroup = dynamic_cast<ObjectGroup*>(layer);
+	ImageLayer *imageLayer = dynamic_cast<ImageLayer*>(layer);
     PropertiesDialog *dialog;
 
     if (objectGroup) {
         dialog = new ObjectGroupPropertiesDialog(mapDocument,
                                                  objectGroup,
                                                  parent);
+    } else if (imageLayer) {
+        dialog = new ImageLayerPropertiesDialog(mapDocument, imageLayer, parent );
     } else {
         dialog = new PropertiesDialog(tr("Layer"),
                                       layer,

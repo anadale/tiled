@@ -114,7 +114,10 @@ SOURCES += aboutdialog.cpp \
     commanddatamodel.cpp \
     commanddialog.cpp \
     tiledapplication.cpp \
-    command.cpp
+    command.cpp \
+    imagelayeritem.cpp \
+    imagelayerpropertiesdialog.cpp \
+    changeimagelayerproperties.cpp
 
 HEADERS += aboutdialog.h \
     automap.h \
@@ -195,7 +198,10 @@ HEADERS += aboutdialog.h \
     commanddialog.h \
     commandbutton.h \
     tiledapplication.h \
-    command.h
+    command.h \
+    imagelayeritem.h \
+    imagelayerpropertiesdialog.h \
+    changeimagelayerproperties.h
 
 FORMS += aboutdialog.ui \
     mainwindow.ui \
@@ -207,7 +213,8 @@ FORMS += aboutdialog.ui \
     saveasimagedialog.ui \
     offsetmapdialog.ui \
     objectpropertiesdialog.ui \
-    commanddialog.ui
+    commanddialog.ui \
+    newimagelayerdialog.ui
 RESOURCES += tiled.qrc
 macx {
     TARGET = Tiled

@@ -34,6 +34,8 @@
 #include "tilelayer.h"
 #include "tilelayeritem.h"
 #include "tileselectionitem.h"
+#include "imagelayer.h"
+#include "imagelayeritem.h"
 #include "toolmanager.h"
 #include "tilesetmanager.h"
 
@@ -170,7 +172,9 @@ QGraphicsItem *MapScene::createLayerItem(Layer *layer)
             mObjectItems.insert(object, item);
         }
         layerItem = ogItem;
-    }
+	} else if (ImageLayer *il = dynamic_cast<ImageLayer*>(layer)) {
+		layerItem = new ImageLayerItem(il, mMapDocument->renderer());
+	}
 
     Q_ASSERT(layerItem);
 
