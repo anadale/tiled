@@ -68,18 +68,33 @@ public:
     /**
      * Returns whether this layer is referencing the given tileset.
      */
-    bool referencesTileset(const Tileset */*tileset*/) const { return false; }
+    bool referencesTileset(const Tileset *) const { return false; }
 
     /**
      * Replaces all references to tiles from \a oldTileset with tiles from
      * \a newTileset.
      */
-    void replaceReferencesToTileset(Tileset */*oldTileset*/,
-                                    Tileset */*newTileset*/) {};
+    void replaceReferencesToTileset(Tileset *, Tileset *) {}
+
     /**
      * Offset this layer using default layer mechanic.
      */
-    virtual void offset(const QPoint &/*offset*/, const QRect &/*bounds*/, bool /*wrapX*/, bool /*wrapY*/) {}
+    virtual void offset(const QPoint &/*offset*/, const QRect &/*bounds*/,
+                        bool /*wrapX*/, bool /*wrapY*/) {}
+
+    /**
+     * Returns whether this layer can merge together with the \a other layer.
+     */
+    bool canMergeWith(Layer *other) const { return false; }
+
+    /**
+     * Returns a newly allocated layer that is the result of merging this layer
+     * with the \a other layer. Where relevant, the other layer is considered
+     * to be on top of this one.
+     *
+     * Should only be called when canMergeWith returns true.
+     */
+    Layer *mergedWith(Layer *other) const { return NULL; }
 
     /**
      * Returns the transparent color, or an invalid color if no transparent

@@ -56,6 +56,13 @@ const int FlippedVerticallyFlag   = 0x40000000;
 namespace Tiled {
 namespace Internal {
 
+struct Image
+{
+    QString source;
+    QImage image;
+    QColor transparentColor;
+};
+
 class MapReaderPrivate
 {
     Q_DECLARE_TR_FUNCTIONS(MapReader)
@@ -106,6 +113,8 @@ private:
 
     ImageLayer *readImageLayer();
     void readImageLayerImage(ImageLayer *imageLayer);
+
+    Image readImage();
 
     Properties readProperties();
     void readProperty(Properties *properties);
@@ -289,7 +298,7 @@ Tileset *MapReaderPrivate::readTileset()
             while (xml.readNextStartElement()) {
                 if (xml.name() == "tile")
                     readTilesetTile(tileset);
-				else if (xml.name() == "image")
+                else if (xml.name() == "image")
                     readTilesetImage(tileset);
                 else
                     readUnknownElement();
@@ -690,7 +699,20 @@ ImageLayer *MapReaderPrivate::readImageLayer()
 
 void MapReaderPrivate::readImageLayerImage(ImageLayer *imageLayer)
 {
+    Image image = readImage();
+
+    imageLayer->setTransparentColor(image.transparentColor);
+    if (!imageLayer->loadFromImage(image.image, image.source)) {
+        xml.raiseError(tr("Error loading image layer image:\n'%1'")
+                       .arg(image.source));
+    }
+}
+
+Image MapReaderPrivate::readImage()
+{
     Q_ASSERT(xml.isStartElement() && xml.name() == "image");
+
+    Image image;
 
     const QXmlStreamAttributes atts = xml.attributes();
     QString source = atts.value(QLatin1String("source")).toString();
@@ -699,16 +721,14 @@ void MapReaderPrivate::readImageLayerImage(ImageLayer *imageLayer)
     if (!trans.isEmpty()) {
         if (!trans.startsWith(QLatin1Char('#')))
             trans.prepend(QLatin1Char('#'));
-        imageLayer->setTransparentColor(QColor(trans));
+        image.transparentColor = QColor(trans);
     }
 
-    source = p->resolveReference(source, mPath);
-
-    const QImage imageLayerImage = p->readExternalImage(source);
-    if (!imageLayer->loadFromImage(imageLayerImage, source))
-        xml.raiseError(tr("Error loading image layer image:\n'%1'").arg(source));
+    image.source = p->resolveReference(source, mPath);
+    image.image = p->readExternalImage(image.source);
 
     xml.skipCurrentElement();
+    return image;
 }
 
 Properties MapReaderPrivate::readProperties()

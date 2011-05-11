@@ -66,6 +66,32 @@ Preferences::Preferences()
     mUseOpenGL = mSettings->value(QLatin1String("OpenGL"), false).toBool();
     mSettings->endGroup();
 
+    // Retrieve Grid and Background settings
+    mSettings->beginGroup(QLatin1String("BackgroundAndGrid"));
+    QString colorName = mSettings->value(QLatin1String("BackgroundColor")).toString();
+    mBackgroundColor = colorName.isEmpty() ? QColor(Qt::darkGray) : QColor(colorName);
+
+    int styleCount = mSettings->beginReadArray(QLatin1String("GridStyles"));
+
+    if (styleCount > 0) {
+        for (int index = 0; index < styleCount; ++index) {
+            mSettings->setArrayIndex(index);
+            int step = mSettings->value(QLatin1String("Step")).toInt();
+            QColor color = QColor(mSettings->value(QLatin1String("Color")).toString());
+            Qt::PenStyle penStyle = (Qt::PenStyle) mSettings->value(QLatin1String("PenStyle")).toInt();
+
+            mGridStyles.append(GridStyle(step, color, penStyle));
+        }
+    } else {
+        // Creating default grid settings
+
+        mGridStyles.append(GridStyle(1, QColor(Qt::black), Qt::DotLine));
+        mGridStyles.append(GridStyle(5, QColor(Qt::black), Qt::CustomDashLine));
+    }
+
+    mSettings->endArray();
+    mSettings->endGroup();
+
     TilesetManager *tilesetManager = TilesetManager::instance();
     tilesetManager->setReloadTilesetsOnChange(mReloadTilesetsOnChange);
 }
@@ -93,6 +119,42 @@ void Preferences::setSnapToGrid(bool snapToGrid)
     mSnapToGrid = snapToGrid;
     mSettings->setValue(QLatin1String("Interface/SnapToGrid"), mSnapToGrid);
     emit snapToGridChanged(mSnapToGrid);
+}
+
+void Preferences::setBackgroundColor(const QColor backgroundColor)
+{
+    if (mBackgroundColor == backgroundColor)
+        return;
+
+    mBackgroundColor = backgroundColor;
+    mSettings->setValue(QLatin1String("BackgroundAndGrid/BackgroundColor"), mBackgroundColor.name());
+    emit backgroundColorChanged(backgroundColor);
+}
+
+bool stepLessThan(const GridStyle &s1, const GridStyle &s2)
+{
+    return s1.step() < s2.step();
+}
+
+void Preferences::setGridStyles(const QVector<GridStyle> &gridStyles)
+{
+    mGridStyles = gridStyles;
+    qSort(mGridStyles.begin(), mGridStyles.end(), stepLessThan);
+
+    mSettings->beginWriteArray(QLatin1String("BackgroundAndGrid/GridStyles"), mGridStyles.count());
+
+    for (int i = 0; i < mGridStyles.count(); ++i) {
+        const GridStyle &style = mGridStyles.at(i);
+
+        mSettings->setArrayIndex(i);
+        mSettings->setValue(QLatin1String("Step"), style.step());
+        mSettings->setValue(QLatin1String("Color"), style.color().name());
+        mSettings->setValue(QLatin1String("PenStyle"), style.penStyle());
+    }
+
+    mSettings->endArray();
+
+    emit gridStylesChanged();
 }
 
 MapWriter::LayerDataFormat Preferences::layerDataFormat() const

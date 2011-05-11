@@ -70,4 +70,3 @@ void ChangeImageLayerProperties::undo()
 
     mMapDocument->emitRegionChanged(mImageLayer->bounds());
 }
-

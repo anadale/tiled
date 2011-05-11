@@ -22,7 +22,9 @@
 #define PREFERENCES_H
 
 #include <QObject>
+#include <QColor>
 
+#include "gridstyle.h"
 #include "mapwriter.h"
 
 class QSettings;
@@ -60,6 +62,12 @@ public:
     bool useOpenGL() const { return mUseOpenGL; }
     void setUseOpenGL(bool useOpenGL);
 
+    QColor backgroundColor() const { return mBackgroundColor; }
+    void setBackgroundColor(const QColor backgroundColor);
+
+    const QVector<GridStyle> &gridStyles() const { return mGridStyles; }
+    void setGridStyles(const QVector<GridStyle> &gridStyles);
+
     /**
      * Provides access to the QSettings instance to allow storing/retrieving
      * arbitrary values. The naming style for groups and keys is CamelCase.
@@ -76,6 +84,9 @@ signals:
 
     void useOpenGLChanged(bool useOpenGL);
 
+    void backgroundColorChanged(QColor backgroundColor);
+    void gridStylesChanged();
+
 private:
     Preferences();
     ~Preferences();
@@ -90,6 +101,10 @@ private:
     QString mLanguage;
     bool mReloadTilesetsOnChange;
     bool mUseOpenGL;
+
+    QColor mBackgroundColor;
+
+    QVector<GridStyle> mGridStyles;
 
     static Preferences *mInstance;
 };

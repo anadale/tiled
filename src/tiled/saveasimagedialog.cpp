@@ -162,8 +162,11 @@ void SaveAsImageDialog::accept()
         }
     }
 
-    if (drawTileGrid)
-        renderer->drawGrid(&painter, QRectF(QPointF(), renderer->mapSize()));
+    if (drawTileGrid) {
+        QVector<GridStyle> gridStyles = QVector<GridStyle>() << GridStyle(1, QColor(Qt::black), Qt::CustomDashLine);
+
+        renderer->drawGrid(&painter, QRectF(QPointF(), renderer->mapSize()), gridStyles);
+    }
 
     image.save(fileName);
     mPath = QFileInfo(fileName).path();

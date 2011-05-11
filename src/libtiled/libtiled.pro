@@ -32,7 +32,8 @@ SOURCES += compression.cpp \
     properties.cpp \
     tilelayer.cpp \
     tileset.cpp \
-    imagelayer.cpp
+    imagelayer.cpp \
+    gridstyle.cpp
 HEADERS += compression.h \
     isometricrenderer.h \
     layer.h \
@@ -49,7 +50,8 @@ HEADERS += compression.h \
     tiled_global.h \
     tilelayer.h \
     tileset.h \
-    imagelayer.h
+    imagelayer.h \
+    gridstyle.h
 macx {
     contains(QT_CONFIG, ppc):CONFIG += x86 \
         ppc

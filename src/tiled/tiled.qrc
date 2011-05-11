@@ -60,5 +60,7 @@
         <file>images/16x16/layer-tile.png</file>
         <file>images/24x24/system-run.png</file>
         <file>images/16x16/show_hide_others.png</file>
+        <file>images/16x16/style-add.png</file>
+        <file>images/16x16/style-delete.png</file>
     </qresource>
 </RCC>

@@ -98,16 +98,14 @@ void PropertiesDialog::showDialogFor(Layer *layer,
                                      MapDocument *mapDocument,
                                      QWidget *parent)
 {
-    ObjectGroup *objectGroup = dynamic_cast<ObjectGroup*>(layer);
-	ImageLayer *imageLayer = dynamic_cast<ImageLayer*>(layer);
     PropertiesDialog *dialog;
 
-    if (objectGroup) {
+    if (ObjectGroup *objectGroup = dynamic_cast<ObjectGroup*>(layer)) {
         dialog = new ObjectGroupPropertiesDialog(mapDocument,
                                                  objectGroup,
                                                  parent);
-    } else if (imageLayer) {
-        dialog = new ImageLayerPropertiesDialog(mapDocument, imageLayer, parent );
+    } else if (ImageLayer *imageLayer = dynamic_cast<ImageLayer*>(layer)) {
+        dialog = new ImageLayerPropertiesDialog(mapDocument, imageLayer, parent);
     } else {
         dialog = new PropertiesDialog(tr("Layer"),
                                       layer,

@@ -33,6 +33,7 @@
 #include "tile.h"
 #include "tilelayer.h"
 #include "imagelayer.h"
+#include "gridstyle.h"
 
 #include <cmath>
 
@@ -90,7 +91,7 @@ QPainterPath IsometricRenderer::shape(const MapObject *object) const
     return path;
 }
 
-void IsometricRenderer::drawGrid(QPainter *painter, const QRectF &rect) const
+void IsometricRenderer::drawGrid(QPainter *painter, const QRectF &rect, const QVector<GridStyle> &gridStyles) const
 {
     const int tileWidth = map()->tileWidth();
     const int tileHeight = map()->tileHeight();
@@ -106,22 +107,50 @@ void IsometricRenderer::drawGrid(QPainter *painter, const QRectF &rect) const
     const int endY = qMin(qreal(map()->height()),
                           pixelToTileCoords(r.bottomLeft()).y());
 
-    QColor gridColor(Qt::black);
-    gridColor.setAlpha(128);
-
-    QPen gridPen(gridColor);
-    gridPen.setDashPattern(QVector<qreal>() << 2 << 2);
-    painter->setPen(gridPen);
+    GridStyle lastStyle;
 
     for (int y = startY; y <= endY; ++y) {
-        const QPointF start = tileToPixelCoords(startX, y);
-        const QPointF end = tileToPixelCoords(endX, y);
-        painter->drawLine(start, end);
+        GridStyle style;
+
+        for (int i = 0; i < gridStyles.count(); ++i) {
+            if ((y % gridStyles[i].step()) == 0) {
+                style = gridStyles[i];
+            }
+        }
+
+        if (style.isValid()) {
+            if (style != lastStyle) {
+                lastStyle = style;
+
+                painter->setPen(style.getPen());
+            }
+
+            const QPointF start = tileToPixelCoords(startX, y);
+            const QPointF end = tileToPixelCoords(endX, y);
+            painter->drawLine(start, end);
+        }
     }
+
     for (int x = startX; x <= endX; ++x) {
-        const QPointF start = tileToPixelCoords(x, startY);
-        const QPointF end = tileToPixelCoords(x, endY);
-        painter->drawLine(start, end);
+        GridStyle style;
+
+        for (int i = 0; i < gridStyles.count(); ++i) {
+            if ((x % gridStyles[i].step()) == 0) {
+                style = gridStyles[i];
+            }
+        }
+
+        if (style.isValid()) {
+            if (style != lastStyle) {
+                lastStyle = style;
+
+                painter->setPen(style.getPen());
+            }
+
+            const QPointF start = tileToPixelCoords(x, startY);
+            const QPointF end = tileToPixelCoords(x, endY);
+            painter->drawLine(start, end);
+        }
     }
 }
 

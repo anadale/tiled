@@ -117,7 +117,8 @@ SOURCES += aboutdialog.cpp \
     command.cpp \
     imagelayeritem.cpp \
     imagelayerpropertiesdialog.cpp \
-    changeimagelayerproperties.cpp
+    changeimagelayerproperties.cpp \
+    gridstylesmodel.cpp
 
 HEADERS += aboutdialog.h \
     automap.h \
@@ -201,7 +202,8 @@ HEADERS += aboutdialog.h \
     command.h \
     imagelayeritem.h \
     imagelayerpropertiesdialog.h \
-    changeimagelayerproperties.h
+    changeimagelayerproperties.h \
+    gridstylesmodel.h
 
 FORMS += aboutdialog.ui \
     mainwindow.ui \

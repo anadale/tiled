@@ -144,6 +144,7 @@ private slots:
 
     void mapChanged();
     void tilesetChanged(Tileset *tileset);
+    void backgroundColorChanged(QColor backgroundColor);
 
     void layerAdded(int index);
     void layerRemoved(int index);
@@ -159,6 +160,7 @@ private:
     QGraphicsItem *createLayerItem(Layer *layer);
 
     void updateInteractionMode();
+    void preferencesChanged();
 
     bool eventFilter(QObject *object, QEvent *event);
 

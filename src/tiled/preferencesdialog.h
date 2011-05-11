@@ -24,6 +24,9 @@
 #include "mapwriter.h"
 
 #include <QDialog>
+#include <QCheckBox>
+#include <QSpinBox>
+#include <QComboBox>
 
 namespace Ui {
 class PreferencesDialog;
@@ -31,6 +34,8 @@ class PreferencesDialog;
 
 namespace Tiled {
 namespace Internal {
+
+class GridStylesModel;
 
 /**
  * The preferences dialog. Allows the user to configure some general behaviour
@@ -50,6 +55,9 @@ protected:
 private slots:
     void languageSelected(int index);
     void useOpenGLToggled(bool useOpenGL);
+    void gridStylesViewSelectionChanged(const QModelIndex&,const QModelIndex&);
+    void addGridStyleClicked();
+    void removeGridStyleClicked();
 
 private:
     void fromPreferences();
@@ -59,6 +67,7 @@ private:
 
     Ui::PreferencesDialog *mUi;
     QStringList mLanguages;
+    GridStylesModel *mGridStylesModel;
 };
 
 

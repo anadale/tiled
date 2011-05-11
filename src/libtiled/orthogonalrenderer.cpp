@@ -33,6 +33,7 @@
 #include "tile.h"
 #include "tilelayer.h"
 #include "imagelayer.h"
+#include "gridstyle.h"
 
 #include <cmath>
 
@@ -94,7 +95,7 @@ QPainterPath OrthogonalRenderer::shape(const MapObject *object) const
     return path;
 }
 
-void OrthogonalRenderer::drawGrid(QPainter *painter, const QRectF &rect) const
+void OrthogonalRenderer::drawGrid(QPainter *painter, const QRectF &rect, const QVector<GridStyle> &gridStyles) const
 {
     const int tileWidth = map()->tileWidth();
     const int tileHeight = map()->tileHeight();
@@ -102,40 +103,75 @@ void OrthogonalRenderer::drawGrid(QPainter *painter, const QRectF &rect) const
     if (tileWidth <= 0 || tileHeight <= 0)
         return;
 
-    const int startX = qMax(0, (int) (rect.x() / tileWidth) * tileWidth);
-    const int startY = qMax(0, (int) (rect.y() / tileHeight) * tileHeight);
+    const int startColumn = qMax(0, (int) (rect.x() / tileWidth));
+    const int startRow = qMax(0, (int)(rect.y() / tileHeight));
+    const int startX = qMax(0, startColumn * tileWidth);
+    const int startY = qMax(0, startRow * tileHeight);
     const int endX = qMin((int) std::ceil(rect.right()),
                           map()->width() * tileWidth + 1);
     const int endY = qMin((int) std::ceil(rect.bottom()),
                           map()->height() * tileHeight + 1);
 
-    QColor gridColor(Qt::black);
-    gridColor.setAlpha(128);
-
-    QPen gridPen(gridColor);
-    gridPen.setDashPattern(QVector<qreal>() << 2 << 2);
+    GridStyle lastStyle;
 
     if (startY < endY) {
-        gridPen.setDashOffset(startY);
-        painter->setPen(gridPen);
-        for (int x = startX; x < endX; x += tileWidth)
-            painter->drawLine(x, startY, x, endY - 1);
+        for (int x = startX, column = startColumn; x < endX; x += tileWidth, column++) {
+            GridStyle style;
+
+            for (int i = 0; i < gridStyles.count(); ++i) {
+                if ((column % gridStyles[i].step()) == 0) {
+                    style = gridStyles[i];
+                }
+            }
+
+            if (style.isValid()) {
+                if (style != lastStyle) {
+                    lastStyle = style;
+                    QPen pen = style.getPen();
+
+                    pen.setDashOffset(startY);
+                    painter->setPen(pen);
+                }
+
+                painter->drawLine(x, startY, x, endY - 1);
+            }
+        }
     }
 
+    lastStyle = GridStyle();
+
     if (startX < endX) {
-        gridPen.setDashOffset(startX);
-        painter->setPen(gridPen);
-        for (int y = startY; y < endY; y += tileHeight)
-            painter->drawLine(startX, y, endX - 1, y);
+        for (int y = startY, row = startRow; y < endY; y += tileHeight, row++) {
+            GridStyle style;
+
+            for (int i = 0; i < gridStyles.count(); ++i) {
+                if ((row % gridStyles[i].step()) == 0) {
+                    style = gridStyles[i];
+                }
+            }
+
+            if (style.isValid()) {
+                if (style != lastStyle) {
+                    lastStyle = style;
+                    QPen pen = style.getPen();
+
+                    pen.setDashOffset(startX);
+                    painter->setPen(pen);
+                }
+
+                painter->drawLine(startX, y, endX - 1, y);
+            }
+        }
     }
 }
 
-void OrthogonalRenderer::drawImageLayer(QPainter *painter, const ImageLayer *imageLayer, const QRectF &/*exposed*/) const
+void OrthogonalRenderer::drawImageLayer(QPainter *painter,
+                                        const ImageLayer *imageLayer,
+                                        const QRectF &/*exposed*/) const
 {
-    const QPointF layerPos(imageLayer->x() * map()->tileWidth(), imageLayer->y() * map()->tileHeight());
-    const QPixmap &img = imageLayer->image();
-
-    painter->drawPixmap(layerPos, img);
+    const QPointF layerPos(imageLayer->x() * map()->tileWidth(),
+                           imageLayer->y() * map()->tileHeight());
+    painter->drawPixmap(layerPos, imageLayer->image());
 }
 
 void OrthogonalRenderer::drawTileLayer(QPainter *painter,

@@ -30,7 +30,9 @@
 
 #include "map.h"
 
+#include "imagelayer.h"
 #include "layer.h"
+#include "objectgroup.h"
 #include "tile.h"
 #include "tilelayer.h"
 #include "tileset.h"
@@ -61,31 +63,28 @@ void Map::adjustMaxTileSize(const QSize &size)
         mMaxTileSize.setHeight(size.height());
 }
 
-int Map::tileLayerCount() const
+template<class T> static int layerTypeCount(const QList<Layer*> &layers)
 {
     int count = 0;
-    foreach (Layer *layer, mLayers)
-       if (layer->asTileLayer())
+    foreach (Layer *layer, layers)
+       if (dynamic_cast<T*>(layer))
            count++;
     return count;
+}
+
+int Map::tileLayerCount() const
+{
+    return layerTypeCount<TileLayer>(mLayers);
 }
 
 int Map::objectGroupCount() const
 {
-    int count = 0;
-    foreach (Layer *layer, mLayers)
-        if (layer->asObjectGroup())
-           count++;
-    return count;
+    return layerTypeCount<ObjectGroup>(mLayers);
 }
 
 int Map::imageLayerCount() const
 {
-	int count = 0;
-	foreach (Layer *layer, mLayers)
-		if (layer->asImageLayer())
-		   count++;
-	return count;
+    return layerTypeCount<ImageLayer>(mLayers);
 }
 
 void Map::addLayer(Layer *layer)

@@ -216,7 +216,7 @@ void MapDocumentActionHandler::addObjectGroup()
 void MapDocumentActionHandler::addImageLayer()
 {
      if (mMapDocument)
-        mMapDocument->addLayer(MapDocument::ImageLayerType);
+         mMapDocument->addLayer(MapDocument::ImageLayerType);
 }
 
 void MapDocumentActionHandler::duplicateLayer()

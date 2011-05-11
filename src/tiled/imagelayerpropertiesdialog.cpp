@@ -74,7 +74,7 @@ ImageLayerPropertiesDialog::ImageLayerPropertiesDialog(
     grid->addWidget(new QLabel(tr("Image:")), 0, 0);
     grid->addWidget(mImage, 0, 1);
     grid->addWidget(mBrowseButton, 0, 2/*, 1, 1, Qt::AlignRight*/);
-    grid->addWidget(new QLabel(tr("Color:")), 1, 0);
+    grid->addWidget(new QLabel(tr("Transparent color:")), 1, 0);
     grid->addWidget(mColorButton, 1, 1);
 
     connect(mBrowseButton, SIGNAL(clicked()), SLOT(browseForImage()));
@@ -109,12 +109,14 @@ void ImageLayerPropertiesDialog::accept()
 {
     QUndoStack *undoStack = mMapDocument->undoStack();
 
+    // TODO: Problematic
     const QColor newColor = mColorButton->color() != Qt::gray
         ? mColorButton->color()
         : QColor();
 
     const QString newPath = mImage->text();
-    const bool localChanges = newColor != mImageLayer->transparentColor() || newPath != mImageLayer->imageSource();
+    const bool localChanges = newColor != mImageLayer->transparentColor()
+            || newPath != mImageLayer->imageSource();
 
     if (localChanges) {
         undoStack->beginMacro(QCoreApplication::translate(
@@ -133,4 +135,3 @@ void ImageLayerPropertiesDialog::accept()
     if (localChanges)
         undoStack->endMacro();
 }
-

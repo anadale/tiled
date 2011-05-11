@@ -134,8 +134,8 @@ public:
 
     enum LayerType {
         TileLayerType,
-		ObjectGroupType,
-		ImageLayerType
+        ObjectGroupType,
+        ImageLayerType
     };
     void addLayer(LayerType layerType);
     void duplicateLayer();

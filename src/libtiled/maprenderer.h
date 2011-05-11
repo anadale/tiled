@@ -40,6 +40,7 @@ class Map;
 class MapObject;
 class TileLayer;
 class ImageLayer;
+class GridStyle;
 
 /**
  * This interface is used for rendering tile layers and retrieving associated
@@ -83,7 +84,7 @@ public:
      * Draws the tile grid in the specified \a rect using the given
      * \a painter.
      */
-    virtual void drawGrid(QPainter *painter, const QRectF &rect) const = 0;
+    virtual void drawGrid(QPainter *painter, const QRectF &rect, const QVector<GridStyle> &gridStyles) const = 0;
 
     /**
      * Draws the given \a layer using the given \a painter.
@@ -113,7 +114,7 @@ public:
                                const QColor &color) const = 0;
 
     /**
-     * Draws the given \a layer using the given
+     * Draws the given \a layer using the given \a painter.
      */
     virtual void drawImageLayer(QPainter *painter,
                                 const ImageLayer *layer,

@@ -31,6 +31,7 @@
 #include "maprenderer.h"
 #include "objectgroup.h"
 #include "objectgroupitem.h"
+#include "preferences.h"
 #include "tilelayer.h"
 #include "tilelayeritem.h"
 #include "tileselectionitem.h"
@@ -59,7 +60,14 @@ MapScene::MapScene(QObject *parent):
     mUnderMouse(false),
     mCurrentModifiers(Qt::NoModifier)
 {
-    setBackgroundBrush(Qt::darkGray);
+    Preferences *preferences = Preferences::instance();
+    QBrush backBrush(preferences->backgroundColor());
+    setBackgroundBrush(backBrush);
+
+    connect(preferences, SIGNAL(backgroundColorChanged(QColor)),
+            this, SLOT(backgroundColorChanged(QColor)));
+    connect(preferences, SIGNAL(gridStylesChanged()),
+            this, SLOT(update()));
 
     TilesetManager *tilesetManager = TilesetManager::instance();
     connect(tilesetManager, SIGNAL(tilesetChanged(Tileset*)),
@@ -172,9 +180,9 @@ QGraphicsItem *MapScene::createLayerItem(Layer *layer)
             mObjectItems.insert(object, item);
         }
         layerItem = ogItem;
-	} else if (ImageLayer *il = dynamic_cast<ImageLayer*>(layer)) {
-		layerItem = new ImageLayerItem(il, mMapDocument->renderer());
-	}
+    } else if (ImageLayer *il = dynamic_cast<ImageLayer*>(layer)) {
+        layerItem = new ImageLayerItem(il, mMapDocument->renderer());
+    }
 
     Q_ASSERT(layerItem);
 
@@ -268,6 +276,13 @@ void MapScene::tilesetChanged(Tileset *tileset)
 
     if (mMapDocument->map()->tilesets().contains(tileset))
         update();
+}
+
+void MapScene::backgroundColorChanged(QColor backgroundColor)
+{
+    QBrush backBrush(backgroundColor);
+
+    setBackgroundBrush(backBrush);
 }
 
 void MapScene::layerAdded(int index)
@@ -397,7 +412,9 @@ void MapScene::drawForeground(QPainter *painter, const QRectF &rect)
     if (!mMapDocument || !mGridVisible)
         return;
 
-    mMapDocument->renderer()->drawGrid(painter, rect);
+    Preferences *prefs = Preferences::instance();
+
+    mMapDocument->renderer()->drawGrid(painter, rect, prefs->gridStyles());
 }
 
 bool MapScene::event(QEvent *event)
